@@ -4,11 +4,12 @@ import re
 from datetime import datetime
 import numpy as np
 import pandas as pd
-from github import Github
-import validators 
-from svn.remote import RemoteClient
+import validators
+import pygit2
+import shutil
+from pathlib import Path
 
-directory_path = "/Users/vainaviv/Desktop/ResearchSpring2020/COVIDAnalysis/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/"
+# directory_path = "/Users/vainaviv/Desktop/ResearchSpring2020/COVIDAnalysis/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/"
 Italy_deaths = []
 Italy_days = []
 California_deaths = []
@@ -21,16 +22,9 @@ italy_found_start = False
 
 # PULL DATA FROM GITHUB : BEGIN
 
-ACCESS_TOKEN = '25c7e7d67836ebf27849baf693accabaf5269659' 
+'''ACCESS_TOKEN = '25c7e7d67836ebf27849baf693accabaf5269659' 
 g = Github(ACCESS_TOKEN)
-print(g.get_user().get_repos())
-
-url = input('https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports')
-
-if not validators.url(url):
-	print("invalid URL")
-else:
-	pass
+print(g.get_repo(""))
 
 def download_folder(url):
 	if 'tree/master' in url:
@@ -41,7 +35,20 @@ def download_folder(url):
 if not validators.url(url):
 	print("invalid URL")
 else:
-	download_folder(url)
+	download_folder(url)'''
+
+if os.path.exists('output'):
+	print('Deleting old repository...')
+	if os.name == 'nt':
+		os.system('rd /s /q output')
+	else:
+		os.system('rm -rf output')
+
+print('Cloning repository...')
+pygit2.clone_repository('https://github.com/CSSEGISandData/COVID-19', 'output')
+print('Cloned repository.')
+
+directory_path = os.path.join(os.path.abspath('output'), 'csse_covid_19_data', 'csse_covid_19_daily_reports') + os.path.sep
 
 # PULL DATA FROM GITHUB : END
 
