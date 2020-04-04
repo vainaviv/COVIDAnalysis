@@ -19,6 +19,8 @@ ca_found_start = False
 
 italy_found_start = False
 
+# PULL DATA FROM GITHUB : BEGIN
+
 ACCESS_TOKEN = '25c7e7d67836ebf27849baf693accabaf5269659' 
 g = Github(ACCESS_TOKEN)
 print(g.get_user().get_repos())
@@ -41,6 +43,10 @@ if not validators.url(url):
 else:
 	download_folder(url)
 
+# PULL DATA FROM GITHUB : END
+
+# SORT FILES BY DATE : BEGIN
+
 def sortMethod(fileName):
 	match = re.search(r"\d{2}-\d{2}-\d{4}", fileName)
 	if (match):
@@ -51,6 +57,10 @@ def sortMethod(fileName):
 
 dir_files = os.listdir(directory_path)
 dir_files = sorted(dir_files, key = lambda row : sortMethod(row))
+
+# SORT FILES BY DATE : END
+
+# EXTRACT DATA POINTS : BEGIN
 
 def Italy_parser(line):
 	global italy_found_start, Italy_start
@@ -94,7 +104,10 @@ for filename in dir_files:
 		for line in lines:
 			Italy_parser(line)
 			CA_parser(line)
+
+# EXTRACT DATA POINTS : END
 			
+# LINEAR REGRESSION : BEGIN
 
 last3daysCA = California_days[-3:]
 last3deathsCA = California_deaths[-3:]
@@ -125,9 +138,12 @@ print(last3deathsCA)
 standard_deviation = np.std(last3deathsCA)
 ytop = [y + standard_deviation for y in yfit]
 ybottom = [y - standard_deviation for y in yfit]
-plt.fill_between(xfit, ybottom, ytop, facecolor = "lightskyblue")
 
-					
+# LINEAR REGRESSION : END 
+
+# PLOT GRAPH : BEGIN
+
+plt.fill_between(xfit, ybottom, ytop, facecolor = "lightskyblue")			
 
 plt.semilogy(Italy_days, Italy_deaths, label = "Italy")
 plt.semilogy(California_days, California_deaths, label = "California")
@@ -138,9 +154,4 @@ plt.xlabel("Number of days since 10th death")
 plt.ylabel("Number of deaths")
 plt.show()
 
-
-
-
-
-
-
+# PLOT GRAPH : END 
