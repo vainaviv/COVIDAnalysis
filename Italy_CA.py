@@ -9,7 +9,6 @@ import pygit2
 import shutil
 from pathlib import Path
 
-# directory_path = "/Users/vainaviv/Desktop/ResearchSpring2020/COVIDAnalysis/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/"
 Italy_deaths = []
 Italy_days = []
 California_deaths = []
@@ -17,25 +16,11 @@ California_days = []
 Italy_start = ""
 CA_start = ""
 ca_found_start = False
-
 italy_found_start = False
+ca_death_index = 0
+italy_death_index = 0
 
 # PULL DATA FROM GITHUB : BEGIN
-
-'''ACCESS_TOKEN = '25c7e7d67836ebf27849baf693accabaf5269659' 
-g = Github(ACCESS_TOKEN)
-print(g.get_repo(""))
-
-def download_folder(url):
-	if 'tree/master' in url:
-		url = url.replace('tree/master', 'trunk')
-	r = RemoteClient(url)
-	r.export('output')
-
-if not validators.url(url):
-	print("invalid URL")
-else:
-	download_folder(url)'''
 
 if os.path.exists('output'):
 	print('Deleting old repository...')
@@ -69,48 +54,58 @@ dir_files = sorted(dir_files, key = lambda row : sortMethod(row))
 
 # EXTRACT DATA POINTS : BEGIN
 
-def Italy_parser(line):
+def Italy_parser(line, date):
 	global italy_found_start, Italy_start
 	if ("Italy" in line): 
 		data = re.split(",", line)
 		match = re.search(r"\d{4}-\d{2}-\d{2}", data[2])
 		if (match):
 			date = datetime.strptime(match.group(), "%Y-%m-%d").date()
-		if italy_found_start:
-			diff = date - Italy_start
-			Italy_days.append(diff.days)
-			Italy_deaths.append((int)(data[3]))
-		if (int)(data[3]) >= 10 and (not Italy_deaths): #if it is empty
-			Italy_start = date
-			italy_found_start = True
-			Italy_days.append(0)
-			Italy_deaths.append((int)(data[3]))
+			if italy_found_start:
+				diff = date - Italy_start
+				if diff.days == 15:
+					print(date)
+				Italy_days.append(diff.days)
+				Italy_deaths.append((int)(data[3]))
+			if data[ca_death_index] != '' and (int)(data[italy_death_index]) >= 10 and (not Italy_deaths): #if it is empty
+				Italy_start = date
+				italy_found_start = True
+				Italy_days.append(0)
+				Italy_deaths.append((int)(data[3]))
 
-def CA_parser(line): 
+def CA_parser(line, date): 
 	global ca_found_start, CA_start
 	if ("California" in line): 
 		data = re.split(",", line)
 		match = re.search(r"\d{4}-\d{2}-\d{2}", data[2])
 		if (match):
 			date = datetime.strptime(match.group(), "%Y-%m-%d").date()
-		if ca_found_start:
-			diff = date - CA_start
-			California_days.append(diff.days)
-			California_deaths.append((int)(data[3]))
-		if (int)(data[3]) >= 10 and (not California_deaths): #if it is empty
-			CA_start = date
-			ca_found_start = True
-			California_days.append(0)
-			California_deaths.append((int)(data[3]))
+			if ca_found_start:
+				diff = date - CA_start
+				California_days.append(diff.days)
+				California_deaths.append((int)(data[3]))
+			if data[ca_death_index] != '' and (int)(data[ca_death_index]) >= 10 and (not California_deaths): #if it is empty
+				CA_start = date
+				ca_found_start = True
+				California_days.append(0)
+				California_deaths.append((int)(data[3]))
 
 
 for filename in dir_files:
+	ca_death_index = 0
+	italy_death_index = 0
 	if filename.endswith(".csv"):
+		file_date = sortMethod(filename)
 		file = open(directory_path + filename, "r")
 		lines = file.readlines();
 		for line in lines:
-			Italy_parser(line)
-			CA_parser(line)
+			l = re.split(",", line)
+			if ca_death_index == 0:
+				ca_death_index = l.index("Deaths")
+			if italy_death_index == 0:
+				italy_death_index = l.index("Deaths")
+			Italy_parser(line,file_date)
+			CA_parser(line, file_date)
 
 # EXTRACT DATA POINTS : END
 			
@@ -118,6 +113,8 @@ for filename in dir_files:
 
 last3daysCA = California_days[-3:]
 last3deathsCA = California_deaths[-3:]
+print(last3deathsCA)
+print(last3daysCA)
 
 def best_fit(X, Y):
     xbar = sum(X)/len(X)
@@ -130,18 +127,14 @@ def best_fit(X, Y):
     b = numer / denum
     a = ybar - b * xbar
 
-    #print('best fit line:\ny = {:.2f} + {:.2f}x'.format(a, b))
-
     return a, b
 
-# solution
 a, b = best_fit(last3daysCA, last3deathsCA)
-extraploate = list(range((int)(last3daysCA[2]) + 1, len(Italy_days)))
-xfit = last3daysCA + extraploate
+extraploate = list(range((int)(last3daysCA[2]), len(Italy_days)))
+xfit = extraploate
 yfit = [a + b * xi for xi in xfit]
 plt.plot(xfit, yfit)
 
-print(last3deathsCA)
 standard_deviation = np.std(last3deathsCA)
 ytop = [y + standard_deviation for y in yfit]
 ybottom = [y - standard_deviation for y in yfit]
@@ -156,9 +149,8 @@ plt.semilogy(Italy_days, Italy_deaths, label = "Italy")
 plt.semilogy(California_days, California_deaths, label = "California")
 plt.legend(loc = "upper left")
 plt.title('California vs. Italy')
-#plt.yticks(np.arange(10, 5000, step = 500))
 plt.xlabel("Number of days since 10th death")
 plt.ylabel("Number of deaths")
-plt.show()
+plt.savefig("ItalyvCA.png")
 
 # PLOT GRAPH : END 
