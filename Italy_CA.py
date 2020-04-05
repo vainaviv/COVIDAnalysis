@@ -8,6 +8,26 @@ import validators
 import pygit2
 import shutil
 from pathlib import Path
+import cgi
+import cgitb 
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+  return render_template('template.html')
+
+@app.route('~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py')
+def my_link():
+  print 'I got clicked!'
+
+  return 'Click.'
+
+if __name__ == '__main__':
+  app.run(debug=True)
+
+cgitb.enable(display = 0, logdir="~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py")
 
 Italy_deaths = []
 Italy_days = []
