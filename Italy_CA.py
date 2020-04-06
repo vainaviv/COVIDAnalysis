@@ -11,16 +11,19 @@ from pathlib import Path
 import cgi
 import cgitb 
 from flask import Flask, render_template
+from collections import defaultdict
+
+# CONNECT TO HTML PAGE : BEGIN
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-  return render_template('template.html')
+  return render_template('COVIDAnalysisWeb.html')
 
-@app.route('~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py')
+@app.route('/~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py')
 def my_link():
-  print 'I got clicked!'
+  print('I got clicked!')
 
   return 'Click.'
 
@@ -29,6 +32,9 @@ if __name__ == '__main__':
 
 cgitb.enable(display = 0, logdir="~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py")
 
+# CONNECT TO HTML PAGE : END
+Italy = {}
+California = {}
 Italy_deaths = []
 Italy_days = []
 California_deaths = []
@@ -83,15 +89,21 @@ def Italy_parser(line, date):
 			date = datetime.strptime(match.group(), "%Y-%m-%d").date()
 			if italy_found_start:
 				diff = date - Italy_start
-				if diff.days == 15:
-					print(date)
-				Italy_days.append(diff.days)
-				Italy_deaths.append((int)(data[3]))
-			if data[ca_death_index] != '' and (int)(data[italy_death_index]) >= 10 and (not Italy_deaths): #if it is empty
+				key = diff.days
+				if key in Italy:
+					Italy[diff.days] += (int)(data[italy_death_index])
+				else:
+					Italy[diff.days] = (int)(data[italy_death_index])
+				#Italy.update({diff.days : (int)(data[italy_death_index])})
+				#Italy_days.append(diff.days)
+				#Italy_deaths.append((int)(data[3]))
+			if data[ca_death_index] != '' and (int)(data[italy_death_index]) >= 10 and (not italy_found_start): #if it is empty
 				Italy_start = date
 				italy_found_start = True
-				Italy_days.append(0)
-				Italy_deaths.append((int)(data[3]))
+				Italy[0] = (int)(data[italy_death_index])
+				#Italy.update({0 : (int)(data[italy_death_index])})
+				#Italy_days.append(0)
+				#Italy_deaths.append((int)(data[3]))
 
 def CA_parser(line, date): 
 	global ca_found_start, CA_start
@@ -102,13 +114,21 @@ def CA_parser(line, date):
 			date = datetime.strptime(match.group(), "%Y-%m-%d").date()
 			if ca_found_start:
 				diff = date - CA_start
-				California_days.append(diff.days)
-				California_deaths.append((int)(data[3]))
-			if data[ca_death_index] != '' and (int)(data[ca_death_index]) >= 10 and (not California_deaths): #if it is empty
+				key = diff.days
+				if key in California:
+					California[diff.days] += (int)(data[ca_death_index])
+				else:
+					California[diff.days] = (int)(data[ca_death_index])
+				#California.update({diff.days : (int)(data[ca_death_index])})
+				#California_days.append(diff.days)
+				#California_deaths.append((int)(data[3]))
+			if data[ca_death_index] != '' and (int)(data[ca_death_index]) >= 10 and (not ca_found_start): #if it is empty
 				CA_start = date
 				ca_found_start = True
-				California_days.append(0)
-				California_deaths.append((int)(data[3]))
+				California[0] = (int)(data[ca_death_index])
+				#California.update({0 : (int)(data[ca_death_index])})
+				#California_days.append(0)
+				#California_deaths.append((int)(data[3]))
 
 
 for filename in dir_files:
@@ -127,14 +147,21 @@ for filename in dir_files:
 			Italy_parser(line,file_date)
 			CA_parser(line, file_date)
 
+Italy_days = list(Italy.keys())
+Italy_deaths = list(Italy.values())
+California_days = list(California.keys())
+California_deaths = list(California.values())
+
+print(California)
+print(Italy)
+print(California_days)
+
 # EXTRACT DATA POINTS : END
 			
 # LINEAR REGRESSION : BEGIN
 
 last3daysCA = California_days[-3:]
 last3deathsCA = California_deaths[-3:]
-print(last3deathsCA)
-print(last3daysCA)
 
 def best_fit(X, Y):
     xbar = sum(X)/len(X)
@@ -171,6 +198,7 @@ plt.legend(loc = "upper left")
 plt.title('California vs. Italy')
 plt.xlabel("Number of days since 10th death")
 plt.ylabel("Number of deaths")
+#plt.show()
 plt.savefig("ItalyvCA.png")
 
 # PLOT GRAPH : END 

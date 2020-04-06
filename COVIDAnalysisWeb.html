@@ -1,16 +1,31 @@
 <!DOCTYPE html>
 <title>Test</title> 
 <meta charset=utf-8> 
-
-<a href="~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py">Click me</a>
-<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>COVID19</title>
 </head>
 <body>
 <h1>COVID19</h1>
+    
+<a href="~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py">Update</a>
+<html lang="en">
 
+<input type="button" id='script' name="scriptbutton" value=" Run Script " onclick="goPython()">
+
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+    <script>
+        function goPython(){
+            $.ajax({
+              url: "Italy_CA.py",
+             context: document.body
+            }).done(function() {
+             alert('finished python script');;
+            });
+        }
+    </script>
+    
 <p>
 Semi-log plots of the total number of COVID-19 confirmed cases and deaths in selected countries and states,
 according to the <a href="https://github.com/CSSEGISandData/COVID-19">dataset</a>
