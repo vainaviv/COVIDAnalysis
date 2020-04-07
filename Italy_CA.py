@@ -48,6 +48,7 @@ ca_found_start = False
 italy_found_start = False
 ca_death_index = 0
 italy_death_index = 0
+date_index = 0
 
 # INITIALIZE VARIABLES : END
 
@@ -89,9 +90,13 @@ def Italy_parser(line, date):
 	global italy_found_start, Italy_start
 	if ("Italy" in line): 
 		data = re.split(",", line)
-		match = re.search(r"\d{4}-\d{2}-\d{2}", data[2])
-		if (match):
-			date = datetime.strptime(match.group(), "%Y-%m-%d").date()
+		match1 = re.search(r"\d{4}-\d{2}-\d{2}", data[date_index])
+		match2 = re.search(r"\d{1}/\d{2}/\d{2}", data[date_index])
+		if (match1 or match2):
+			if (match1) :
+				date = datetime.strptime(match1.group(), "%Y-%m-%d").date()
+			else :
+				date = datetime.strptime(match2.group(), "%m/%d/%y").date()
 			if italy_found_start:
 				diff = date - Italy_start
 				key = diff.days
@@ -110,14 +115,17 @@ def Italy_parser(line, date):
 				#Italy_days.append(0)
 				#Italy_deaths.append((int)(data[3]))
 
-def CA_parser(line, date): 
+def CA_parser(line): 
 	global ca_found_start, CA_start
 	if ("California" in line): 
-		print(line)
 		data = re.split(",", line)
-		match = re.search(r"\d{4}-\d{2}-\d{2}", data[2])
-		if (match):
-			date = datetime.strptime(match.group(), "%Y-%m-%d").date()
+		match1 = re.search(r"\d{4}-\d{2}-\d{2}", data[date_index])
+		match2 = re.search(r"\d{1}/\d{2}/\d{2}", data[date_index])
+		if (match1 or match2):
+			if (match1) :
+				date = datetime.strptime(match1.group(), "%Y-%m-%d").date()
+			else :
+				date = datetime.strptime(match2.group(), "%m/%d/%y").date()
 			if ca_found_start:
 				diff = date - CA_start
 				key = diff.days
@@ -140,26 +148,28 @@ def CA_parser(line, date):
 for filename in dir_files:
 	ca_death_index = 0
 	italy_death_index = 0
+	date_index = 0
 	if filename.endswith(".csv"):
 		file_date = sortMethod(filename)
 		file = open(directory_path + filename, "r")
 		lines = file.readlines();
 		for line in lines:
 			l = re.split(",", line)
+			if (date_index == 0):
+				for i in range(0,len(l)):
+					if "Update" in l[i]:
+						date_index = i
 			if ca_death_index == 0:
 				ca_death_index = l.index("Deaths")
 			if italy_death_index == 0:
 				italy_death_index = l.index("Deaths")
 			Italy_parser(line,file_date)
-			CA_parser(line, file_date)
+			CA_parser(line)
 
 Italy_days = list(Italy.keys())
 Italy_deaths = list(Italy.values())
 California_days = list(California.keys())
 California_deaths = list(California.values())
-
-print(California)
-print(Italy)
 
 # EXTRACT DATA POINTS : END
 			
