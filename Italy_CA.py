@@ -33,6 +33,9 @@ if __name__ == '__main__':
 cgitb.enable(display = 0, logdir="~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py")
 
 # CONNECT TO HTML PAGE : END
+
+# INITIALIZE VARIABLES : BEGIN 
+
 Italy = {}
 California = {}
 Italy_deaths = []
@@ -45,6 +48,8 @@ ca_found_start = False
 italy_found_start = False
 ca_death_index = 0
 italy_death_index = 0
+
+# INITIALIZE VARIABLES : END
 
 # PULL DATA FROM GITHUB : BEGIN
 
@@ -108,6 +113,7 @@ def Italy_parser(line, date):
 def CA_parser(line, date): 
 	global ca_found_start, CA_start
 	if ("California" in line): 
+		print(line)
 		data = re.split(",", line)
 		match = re.search(r"\d{4}-\d{2}-\d{2}", data[2])
 		if (match):
@@ -154,7 +160,6 @@ California_deaths = list(California.values())
 
 print(California)
 print(Italy)
-print(California_days)
 
 # EXTRACT DATA POINTS : END
 			
