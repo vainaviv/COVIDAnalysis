@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html>
 <title>Test</title> 
 <meta charset=utf-8> 
 <head>
@@ -7,25 +8,6 @@
 </head>
 <body>
 <h1>COVID19</h1>
-    
-<a href="~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py">Update</a>
-<html lang="en">
-
-<input type="button" id='script' name="scriptbutton" value=" Run Script " onclick="goPython()">
-
-    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-
-    <script>
-        function goPython(){
-            $.ajax({
-              url: "Italy_CA.py",
-             context: document.body
-            }).done(function() {
-             alert('finished python script');;
-            });
-        }
-    </script>
-    
 <p>
 Semi-log plots of the total number of COVID-19 confirmed cases and deaths in selected countries and states,
 according to the <a href="https://github.com/CSSEGISandData/COVID-19">dataset</a>
@@ -40,7 +22,7 @@ Data from this source is typically updated daily, shortly after 5pm Pacific Time
 <h2>Deaths</h2>
 <h3>Deaths - California vs. Italy</h3>
 <p>
-<img src="ItalyvCA.png" alt="covid19-deaths-world" height = 400 width = 550/>
+<img src="{{ user_image }}" alt="User Image" width="500" height="400" />
 </p>
 
 </body>

@@ -13,26 +13,28 @@ import cgitb
 from flask import Flask, render_template
 from collections import defaultdict
 
-# CONNECT TO HTML PAGE : BEGIN
+# SHUAI FLASK : BEGIN 
+
+PEOPLE_FOLDER = os.path.join('static', 'Figures')
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = PEOPLE_FOLDER
 
 @app.route('/')
-def index():
-  return render_template('COVIDAnalysisWeb.html')
+@app.route('/index')
+def show_index():
+    full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'ItalyvCA.png')
+    return render_template("COVIDAnalysisWeb.html", user_image = full_filename)
 
-@app.route('/~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py')
-def my_link():
-  print('I got clicked!')
+  
+if __name__ == "__main__":
+    import webbrowser
 
-  return 'Click.'
+    webbrowser.open("http://127.0.0.1:5000/")
+    app.run(debug=True)
 
-if __name__ == '__main__':
-  app.run(debug=True)
+# SHUAI FLASK : END
 
-cgitb.enable(display = 0, logdir="~/Desktop/GitHub/COVIDAnalysis/Italy_CA.py")
-
-# CONNECT TO HTML PAGE : END
 
 # INITIALIZE VARIABLES : BEGIN 
 
@@ -214,6 +216,6 @@ plt.title('California vs. Italy')
 plt.xlabel("Number of days since 10th death")
 plt.ylabel("Number of deaths")
 #plt.show()
-plt.savefig("ItalyvCA.png")
+plt.savefig("static/Figures/ItalyvCA.png")
 
 # PLOT GRAPH : END 
